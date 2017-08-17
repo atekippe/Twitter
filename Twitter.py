@@ -4,6 +4,7 @@ import base64
 import subprocess
 from keys import *
 
+
 def should_we_tweet_live(cracked, tweet_id):
     if "Not Cracked" in cracked:
         print("Loser ", cracked)
