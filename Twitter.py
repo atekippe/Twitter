@@ -39,8 +39,8 @@ def crack_stuff(crack_hash, f_format):
 
     # Regex to check the John output for success
     filter_cracked = re.compile(crack_hash)
-    dict_path = "/home/atekippe/Desktop/rockyou.txt"
-    #dict_path = "/home/atekippe/Downloads/realuniq.lst"
+    #dict_path = "/home/atekippe/Desktop/rockyou.txt"
+    dict_path = "/home/atekippe/Downloads/realuniq.lst"
 
     for i in f_format:
         print("Cracking : ", i)
