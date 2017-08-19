@@ -53,10 +53,10 @@ def crack_stuff(crack_hash, f_format):
 
     # Regex to check the John output for success
     filter_cracked = re.compile(crack_hash)
-    #dict_path = "/home/atekippe/Desktop/rockyou.txt"
-    dict_path = "/home/atekippe/Downloads/realuniq.lst"
+    # dict_path = "/home/atekippe/Desktop/rockyou.txt"
+    # dict_path = "/home/atekippe/Downloads/realuniq.lst"
+    dict_path = "/home/atekippe/Desktop/realhuman_phill.txt"
 
-    """
     for i in f_format:
         print("Cracking : ", i)
 
@@ -88,7 +88,7 @@ def crack_stuff(crack_hash, f_format):
 
     except IOError as e:
         print(e)
-"""
+
     return "Not Cracked"
 
 
