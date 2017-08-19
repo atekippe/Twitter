@@ -5,6 +5,19 @@ import subprocess
 from keys import *
 
 
+def rot_decode(story, shift):
+    #  https://stackoverflow.com/questions/8886947/caesar-cipher-function-in-python
+    return ''.join([  # concentrate list to string
+            (lambda c, is_upper: c.upper() if is_upper else c)  # if original char is upper case than convert result to upper case too
+                (
+                  ("abcdefghijklmnopqrstuvwxyz"*2)[ord(char.lower()) - ord('a') + shift % 26],  # rotate char, this is extra easy since Python accepts list indexs below 0
+                  char.isupper()
+                )
+            if char.isalpha() else char  # if not in alphabet then don't change it
+            for char in story
+        ])
+
+
 def should_we_tweet_live(cracked, tweet_id):
     if "Not Cracked" in cracked:
         print("Loser ", cracked)
