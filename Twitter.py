@@ -20,6 +20,7 @@ def should_we_tweet_live(cracked, tweet_id):
 
 
 def crack_stuff(crack_hash, f_format):
+    print(crack_hash, f_format)
     file_path = '/tmp/hashes/' + crack_hash
     to_write = crack_hash + ":" + crack_hash
     clean_up = 'rm ' + file_path + '&& rm /tmp/hashes/test'
@@ -42,6 +43,7 @@ def crack_stuff(crack_hash, f_format):
     #dict_path = "/home/atekippe/Desktop/rockyou.txt"
     dict_path = "/home/atekippe/Downloads/realuniq.lst"
 
+    """
     for i in f_format:
         print("Cracking : ", i)
 
@@ -73,7 +75,7 @@ def crack_stuff(crack_hash, f_format):
 
     except IOError as e:
         print(e)
-
+"""
     return "Not Cracked"
 
 
