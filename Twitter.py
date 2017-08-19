@@ -4,6 +4,32 @@ import base64
 import subprocess
 from keys import *
 
+debug = ''
+
+
+def debug_info(raw_hash, hash_type):
+    # print(raw_hash, hash_type)
+    pass
+
+
+def unknown_write(unknown_data):
+
+    file_path = '/tmp/hashes/unknown.txt'
+
+    try:
+        # path to the file
+        # open the file, a appends data
+        out_file = open(file_path, 'a')
+        # write the data
+        out_file.write(unknown_data)
+        # if you need a new line
+        out_file.write("\n")
+        # close the file
+        out_file.close()
+
+    except IOError as e:
+        print(e)
+
 
 def rot_decode(story, shift):
     #  https://stackoverflow.com/questions/8886947/caesar-cipher-function-in-python
@@ -33,10 +59,18 @@ def should_we_tweet_live(cracked, tweet_id):
 
 
 def crack_stuff(crack_hash, f_format):
-    print(crack_hash, f_format)
+
     file_path = '/tmp/hashes/' + crack_hash
     to_write = crack_hash + ":" + crack_hash
     clean_up = 'rm ' + file_path + '&& rm /tmp/hashes/test'
+
+    # Regex to check the John output for success
+    filter_cracked = re.compile(crack_hash)
+
+    # dict_path = "/home/atekippe/Desktop/rockyou.txt"
+    dict_path = "/home/atekippe/Desktop/words.txt"
+    # dict_path = "/home/atekippe/Desktop/realhuman_phill.txt"
+
     try:
         # path to the file
         # open the file, a appends data
@@ -50,12 +84,6 @@ def crack_stuff(crack_hash, f_format):
 
     except IOError as e:
         print(e)
-
-    # Regex to check the John output for success
-    filter_cracked = re.compile(crack_hash)
-    # dict_path = "/home/atekippe/Desktop/rockyou.txt"
-    # dict_path = "/home/atekippe/Downloads/realuniq.lst"
-    dict_path = "/home/atekippe/Desktop/realhuman_phill.txt"
 
     for i in f_format:
         print("Cracking : ", i)
@@ -117,10 +145,6 @@ def base64_decode(b64_data):
 
     return "Not Cracked"
 
-
-
-
-
 # Regexes to match data posted
 filter_binary = re.compile('0b[0-1]{8}')
 filter_base64 = re.compile('^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$')
@@ -133,17 +157,10 @@ filter_sha256 = re.compile('^[0-9a-fA-F]{64}$')
 filter_sha384 = re.compile('^[0-9a-fA-F]{96}$')
 filter_sha512 = re.compile('^[0-9a-fA-F]{128}$')
 
-
-
-
 # Login to Twitter
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
-
-# post a tweet
-#api.update_status("TEST TWEET!")
-
 
 # Get Tweets for CipherEveryword
 new_tweets = api.user_timeline(screen_name = "CipherEveryword", count=200)
@@ -183,45 +200,69 @@ for tweet in new_tweets:
                                 # Maybe base64?
                                 regex = re.search(filter_base64, tweet.text)
                                 if regex is None:
-                                    print("No Match :", tweet.text)
+                                    # print("No Match :", tweet.text)
+                                    unknown_write(tweet.text)
                                 else:
                                     # Try to decode the b64
                                     cracked = base64_decode(tweet.text)
                                     should_we_tweet_live(cracked, tweetID)
                             else:
-                                #print("We have SHA512: ", tweet.text)
                                 hash_format = ["Raw-SHA512"]
+
+                                # Debugging info
+                                if debug is 'true':
+                                    debug_info(tweet.text, hash_format)
+
                                 cracked = crack_stuff(tweet.text, hash_format)
                                 print(tweet.id_str)
                                 should_we_tweet_live(cracked, tweetID)
                         else:
-                            #print("We have SHA 384: ", tweet.text)
                             hash_format = ["Raw-SHA384"]
+
+                            # Debugging info
+                            if debug is 'true':
+                                debug_info(tweet.text, hash_format)
+
                             cracked = crack_stuff(tweet.text, hash_format)
                             should_we_tweet_live(cracked, tweetID)
                     else:
-                        #print("We have SHA256: ", tweet.text)
                         hash_format = ["Raw-SHA256"]
+
+                        # Debugging info
+                        if debug is 'true':
+                            debug_info(tweet.text, hash_format)
+
                         cracked = crack_stuff(tweet.text, hash_format)
                         should_we_tweet_live(cracked, tweetID)
                 else:
-                    #print("We have SHA224: ", tweet.text) Raw-SHA224
                     hash_format = ["Raw-SHA224"]
+
+                    # Debugging info
+                    if debug is 'true':
+                        debug_info(tweet.text, hash_format)
+
                     cracked = crack_stuff(tweet.text, hash_format)
                     should_we_tweet_live(cracked, tweetID)
             else:
-                # print("We have RIP160: ", tweet.text)
                 hash_format = ["ripemd-160", "Raw-SHA1"]
+
+                # Debugging info
+                if debug is 'true':
+                    debug_info(tweet.text, hash_format)
+
                 cracked = crack_stuff(tweet.text, hash_format)
                 should_we_tweet_live(cracked, tweetID)
         else:
-            # print("We have and MD2 / MD4: ", tweet.text)
-            # john formats MD2 = MD2, MD4 = raw-md4, MD5 = raw-md5
-            hash_format = ["raw-md5", "raw-md4", "MD2"]
+            hash_format = ["raw-md5", "raw-md4", "MD2", "ripemd-128", "HAVAL-128-4"]
+
+            # Debugging info
+            if debug is 'true':
+                debug_info(tweet.text, hash_format)
+
             cracked = crack_stuff(tweet.text, hash_format)
             should_we_tweet_live(cracked, tweetID)
     else:
-        #print("We have Binary: ", tweet.text)
+
         binary_decode(tweet.text)
 
 
