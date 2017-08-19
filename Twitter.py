@@ -72,10 +72,10 @@ def go_slower():
     time.sleep(60)
     print("Sleeping 2 minutes...")
     time.sleep(60)
-    print("Sleeping 1 minute1...")
-    time.sleep(30)
-    print("Sleeping 30 seconds...")
-    time.sleep(30)
+#    print("Sleeping 1 minute1...")
+ #   time.sleep(30)
+  #  print("Sleeping 30 seconds...")
+   # time.sleep(30)
 
 
 def should_we_tweet_live(cracked, tweet_id):
@@ -87,8 +87,8 @@ def should_we_tweet_live(cracked, tweet_id):
         try:
             print("Winner  ", cracked)
             # need to slow down the requests - 1 Tweet every 3 minutes on load
-            #go_slower()
-            #api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
+            go_slower()
+            api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
         except tweepy.TweepError as e:
             print(e)
 
