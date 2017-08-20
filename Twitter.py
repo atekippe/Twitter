@@ -134,9 +134,8 @@ def should_we_tweet_live(cracked, tweet_id):
         print("Winner  ", cracked, tweet_id)
         update_solve_file(tweet_id)
         # need to slow down the requests - 1 Tweet every 3 minutes on load
-        go_slower()
         api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
-
+        go_slower()
 
 def crack_stuff(crack_hash, f_format):
 
