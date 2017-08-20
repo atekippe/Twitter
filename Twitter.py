@@ -245,13 +245,19 @@ def binary_decode(binary_data):
 
 # functions to reverse data
 def base64_decode(b64_data):
-    filter_alphanumeric = re.compile('^[a-zA-Z0-9_]*$')
+    filter_alphanumeric = re.compile('^[a-zA-Z0-9_-]*$')
 
     try:
         decoded = base64.b64decode(b64_data)
 
         try:
             str_decoded = str(decoded, 'utf-8')
+            # code to check the decode vs a Dictionary instead
+            # d = enchant.DictWithPWL("en_US", "words.txt")
+            # is_english = d.check(str_decoded)
+            # if is_english is True:
+              #  print(str_decoded, is_english)
+
             if re.search(filter_alphanumeric, str_decoded) is not None:
                 print("Base64 is: ", str_decoded)
                 return str_decoded
