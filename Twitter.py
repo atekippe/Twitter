@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import tweepy
 import re
 import base64
