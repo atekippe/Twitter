@@ -201,7 +201,7 @@ def crack_stuff(crack_hash, f_format):
     for i in f_format:
         # print("Cracking : ", i)
 
-        john_command = "/home/atekippe/Desktop/CTF/utils/john-jumbo/john --format=" + i + " " + file_path + " --wordlist=" + dict_path + " --pot=solve.pot"
+        john_command = "john-jumbo/john --format=" + i + " " + file_path + " --wordlist=" + dict_path + " --pot=solve.pot"
         # john-jumbo --format=raw-md5 md --wordlist=/home/atekippe/Desktop/rockyou.txt --pot=test
         output = subprocess.getoutput([john_command])
 
