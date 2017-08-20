@@ -100,6 +100,19 @@ def new_solve(cracked, tweet_id):
     return solve
 
 
+def update_solve_file(tweet_id):
+    try:
+        # read a file to a variable
+        solved_file = open('/tmp/hashes/tweetID_solved.txt', 'a')
+        # write the data
+        solved_file.write(tweet_id)
+        solved_file.write("\n")
+        solved_file.close()
+        print("Updated Solved File")
+    except IOError as e:
+        print(e)
+
+
 def should_we_tweet_live(cracked, tweet_id):
     if "Not Cracked" in cracked:
         print("Loser ", cracked)
@@ -107,7 +120,7 @@ def should_we_tweet_live(cracked, tweet_id):
         cracked_split = cracked.split()
         to_tweet = "@CipherEveryword " + cracked_split[0]
         print("Winner  ", cracked, tweet_id)
-
+        update_solve_file(tweet_id)
         # need to slow down the requests - 1 Tweet every 3 minutes on load
         # go_slower()
         # api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
