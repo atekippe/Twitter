@@ -68,11 +68,11 @@ def rot_break(data):
 
 
 def go_slower():
-    print("Sleeping 10 minutes...")
-    time.sleep(60)
-    print("Sleeping 9 minutes...")
-    time.sleep(60)
-    print("Sleeping 8 minutes...")
+    # print("Sleeping 10 minutes...")
+    # time.sleep(60)
+    # print("Sleeping 9 minutes...")
+    # time.sleep(60)
+    # print("Sleeping 8 minutes...")
     time.sleep(60)
     print("Sleeping 7 minutes...")
     time.sleep(60)
@@ -134,8 +134,12 @@ def should_we_tweet_live(cracked, tweet_id):
         print("Winner  ", cracked, tweet_id)
         update_solve_file(tweet_id)
         # need to slow down the requests - 1 Tweet every 3 minutes on load
-        api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
-        go_slower()
+        try:
+            api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
+            go_slower()
+        except tweepy.TweepError as e:
+            print(e)
+
 
 def crack_stuff(crack_hash, f_format):
 
