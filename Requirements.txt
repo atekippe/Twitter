@@ -1,7 +1,4 @@
 tweepy
-re
 base64
-subprocess
 enchant
-time
 binascii
