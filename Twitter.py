@@ -48,13 +48,15 @@ def rot_decode(story, shift):
 
 
 def rot_break(data):
-    # get an english Dictionary
-    d = enchant.Dict("en_US")
+    # get an english Dictionary and add a custom word list
+    pwl = enchant.request_pwl_dict("words.txt")
+    d = enchant.DictWithPWL("en_US", "words.txt")
     # roll the bits and look for an english word
     i = 0
     while i < 26:
 
         decoded = rot_decode(data, i)
+
         is_english = d.check(decoded)
         print(decoded, is_english)
         if is_english is True:
@@ -164,7 +166,7 @@ def should_we_tweet_live(cracked, tweet_id):
         # need to slow down the requests - 1 Tweet every 3 minutes on load
         try:
             api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
-            go_slower()
+            # go_slower()
             pass
         except tweepy.TweepError as e:
             print(e)
@@ -199,7 +201,7 @@ def crack_stuff(crack_hash, f_format):
         print(e)
 
     for i in f_format:
-        # print("Cracking : ", i)
+        print("Cracking : ", i)
 
         john_command = "/home/atekippe/tools/john-jumbo/john --format=" + i + " " + file_path + " --wordlist=" + dict_path + " --pot=solve.pot"
         # john-jumbo --format=raw-md5 md --wordlist=/home/atekippe/Desktop/rockyou.txt --pot=test
@@ -254,6 +256,16 @@ def base64_decode(b64_data):
                 print("Base64 is: ", str_decoded)
                 return str_decoded
         except Exception:
+            try:
+                # read a file to a variable
+                b64_file = open('b64_notdecoded.txt', 'a')
+                # write the data
+                b64_file.write(b64_data)
+                b64_file.write("\n")
+                b64_file.close()
+                print("Updated Solved File")
+            except IOError as e:
+                print(e)
             pass
     except IOError as e:
         print(e)
