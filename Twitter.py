@@ -9,6 +9,8 @@ import enchant
 import time
 import binascii
 
+
+# Debug = true gives some more data on hashing
 debug = ''
 
 
@@ -18,8 +20,10 @@ def debug_info(raw_hash, hash_type):
 
 
 def unknown_write(unknown_data):
+    # Messy global variable to fix pathing issues....
+    global project_path
 
-    file_path = 'unknown.txt'
+    file_path = project_path + 'unknown.txt'
 
     try:
         # path to the file
@@ -50,9 +54,11 @@ def rot_decode(story, shift):
 
 
 def rot_break(data):
+    # Messy global variable to fix pathing issues....
+    global project_path
     # get an english Dictionary and add a custom word list
-    pwl = enchant.request_pwl_dict("words.txt")
-    d = enchant.DictWithPWL("en_US", "words.txt")
+    dict_path = project_path + "words.txt"
+    d = enchant.DictWithPWL("en_US", dict_path)
     # roll the bits and look for an english word
     i = 0
     while i < 26:
@@ -95,10 +101,13 @@ def go_slower():
 
 
 def new_solve_write_id(cracked, tweet_id):
-
+    # this function isn't used... at one point I deleted all the solved Tweet IDs. This function will look at the cleartext we have solved and get tweetIDs
+    # Messy global variable to fix pathing issues....
+    global project_path
+    clear_path = project_path + 'ClearWords.txt'
     try:
         # read a file to a variable
-        solved_file = open('ClearWords.txt', 'r')
+        solved_file = open(clear_path, 'r')
 
     except IOError as e:
         print(e)
@@ -120,10 +129,12 @@ def new_solve_write_id(cracked, tweet_id):
 
 
 def new_solve(cracked, tweet_id):
-
+    # Messy global variable to fix pathing issues....
+    global project_path
+    tweet_id_path = project_path + 'tweetID_solved.txt'
     try:
         # read a file to a variable
-        solved_file = open('tweetID_solved.txt', 'r')
+        solved_file = open(tweet_id_path, 'r')
 
     except IOError as e:
         print(e)
@@ -143,9 +154,13 @@ def new_solve(cracked, tweet_id):
 
 
 def update_solve_file(tweet_id):
+    # Messy global variable to fix pathing issues....
+    global project_path
+    tweet_id_solve_path = project_path + 'tweetID_solved.txt'
+
     try:
         # read a file to a variable
-        solved_file = open('tweetID_solved.txt', 'a')
+        solved_file = open(tweet_id_solve_path, 'a')
         # write the data
         solved_file.write(tweet_id)
         solved_file.write("\n")
@@ -175,8 +190,10 @@ def should_we_tweet_live(cracked, tweet_id):
 
 
 def crack_stuff(crack_hash, f_format):
+    # Messy global variable to fix pathing issues....
+    global project_path
 
-    file_path = crack_hash
+    file_path = project_path + crack_hash
     to_write = crack_hash + ":" + crack_hash
     # get rid of the pot file
     # clean_up = 'rm ' + file_path + '&& rm /tmp/hashes/test'
@@ -186,7 +203,7 @@ def crack_stuff(crack_hash, f_format):
     # Regex to check the John output for success
     filter_cracked = re.compile(crack_hash)
 
-    dict_path = "words.txt"
+    dict_path = project_path + "words.txt"
 
     try:
         # path to the file
@@ -221,9 +238,10 @@ def crack_stuff(crack_hash, f_format):
     # clean_up the temp files
     subprocess.getoutput([clean_up])
     try:
+        no_crack_path = project_path + "no_crack.txt"
         # path to the file
         # open the file, a appends data
-        out_file = open("no_crack.txt", 'a')
+        out_file = open(no_crack_path, 'a')
         # write the data
         out_file.write(crack_hash)
         # if you need a new line
@@ -248,6 +266,8 @@ def binary_decode(binary_data):
 # functions to reverse data
 def base64_decode(b64_data):
     filter_alphanumeric = re.compile('^[a-zA-Z0-9_-]*$')
+    # Messy global variable to fix pathing issues....
+    global project_path
 
     try:
         decoded = base64.b64decode(b64_data)
@@ -265,8 +285,9 @@ def base64_decode(b64_data):
                 return str_decoded
         except Exception:
             try:
+                base64_decoded_path = project_path + 'b64_notdecoded.txt'
                 # read a file to a variable
-                b64_file = open('b64_notdecoded.txt', 'a')
+                b64_file = open(base64_decoded_path, 'a')
                 # write the data
                 b64_file.write(b64_data)
                 b64_file.write("\n")
