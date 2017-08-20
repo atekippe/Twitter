@@ -1,4 +1,3 @@
 tweepy
-base64
 enchant
 binascii
