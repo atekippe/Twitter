@@ -17,7 +17,7 @@ def debug_info(raw_hash, hash_type):
 
 def unknown_write(unknown_data):
 
-    file_path = '/tmp/hashes/unknown.txt'
+    file_path = 'unknown.txt'
 
     try:
         # path to the file
@@ -90,10 +90,36 @@ def go_slower():
     time.sleep(60)
 
 
-def new_solve(cracked, tweet_id):
+def new_solve_write_id(cracked, tweet_id):
+
     try:
         # read a file to a variable
-        solved_file = open('/tmp/hashes/tweetID_solved.txt', 'r')
+        solved_file = open('ClearWords.txt', 'r')
+
+    except IOError as e:
+        print(e)
+
+    for solve in solved_file:
+        solve_clean = str(solve).rstrip()
+        if cracked in solve_clean:
+            # print("Already Solved!", cracked, solve_clean, tweet_id)
+            solve = 1
+            update_solve_file(tweet_id)
+            break
+        else:
+            print(solve_clean, cracked)
+            solve = 0
+
+    solved_file.close()
+
+    return solve
+
+
+def new_solve(cracked, tweet_id):
+
+    try:
+        # read a file to a variable
+        solved_file = open('tweetID_solved.txt', 'r')
 
     except IOError as e:
         print(e)
@@ -101,7 +127,7 @@ def new_solve(cracked, tweet_id):
     for solve in solved_file:
         solve_clean = str(solve).rstrip()
         if tweet_id in solve_clean:
-            # print("Already Solved!", cracked, solve_clean, tweet_id)
+            print("Already Solved!", cracked, solve_clean, tweet_id)
             solve = 1
             break
         else:
@@ -115,7 +141,7 @@ def new_solve(cracked, tweet_id):
 def update_solve_file(tweet_id):
     try:
         # read a file to a variable
-        solved_file = open('/tmp/hashes/tweetID_solved.txt', 'a')
+        solved_file = open('tweetID_solved.txt', 'a')
         # write the data
         solved_file.write(tweet_id)
         solved_file.write("\n")
@@ -132,18 +158,21 @@ def should_we_tweet_live(cracked, tweet_id):
         cracked_split = cracked.split()
         to_tweet = "@CipherEveryword " + cracked_split[0]
         print("Winner  ", cracked, tweet_id)
+
         update_solve_file(tweet_id)
+
         # need to slow down the requests - 1 Tweet every 3 minutes on load
         try:
             api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
             go_slower()
+            pass
         except tweepy.TweepError as e:
             print(e)
 
 
 def crack_stuff(crack_hash, f_format):
 
-    file_path = '/tmp/hashes/' + crack_hash
+    file_path = crack_hash
     to_write = crack_hash + ":" + crack_hash
     # get rid of the pot file
     # clean_up = 'rm ' + file_path + '&& rm /tmp/hashes/test'
@@ -153,9 +182,7 @@ def crack_stuff(crack_hash, f_format):
     # Regex to check the John output for success
     filter_cracked = re.compile(crack_hash)
 
-    # dict_path = "/home/atekippe/Desktop/rockyou.txt"
-    dict_path = "/home/atekippe/Desktop/words.txt"
-    # dict_path = "/home/atekippe/Desktop/realhuman_phill.txt"
+    dict_path = "words.txt"
 
     try:
         # path to the file
@@ -174,7 +201,7 @@ def crack_stuff(crack_hash, f_format):
     for i in f_format:
         # print("Cracking : ", i)
 
-        john_command = "/home/atekippe/Desktop/CTF/utils/john-jumbo/john --format=" + i + " " + file_path + " --wordlist=" + dict_path + " --pot=/tmp/hashes/test"
+        john_command = "/home/atekippe/Desktop/CTF/utils/john-jumbo/john --format=" + i + " " + file_path + " --wordlist=" + dict_path + " --pot=solve.pot"
         # john-jumbo --format=raw-md5 md --wordlist=/home/atekippe/Desktop/rockyou.txt --pot=test
         output = subprocess.getoutput([john_command])
 
@@ -192,7 +219,7 @@ def crack_stuff(crack_hash, f_format):
     try:
         # path to the file
         # open the file, a appends data
-        out_file = open("/tmp/hashes/no_crack.txt", 'a')
+        out_file = open("no_crack.txt", 'a')
         # write the data
         out_file.write(crack_hash)
         # if you need a new line
@@ -261,16 +288,14 @@ for tweet in new_tweets:
     tweetID = tweet.id_str
 
     already_solved = new_solve(tweet.text, tweetID)
-
     if already_solved is 1:
-        print("Already Solved!  ", tweet.text, tweetID)
+        # print("Already Solved!  ", tweet.text, tweetID)
+        pass
     else:
-        print("Not Solved")
+        print("Not Solved") 
 
-
-        #print(tweet.text)
         """
-    
+        print(tweet.text)
         print(tweet.id_str)
         print(tweet.created_at) 
         """
