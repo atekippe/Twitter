@@ -73,9 +73,31 @@ def go_slower():
     print("Sleeping 2 minutes...")
     time.sleep(60)
 #    print("Sleeping 1 minute1...")
- #   time.sleep(30)
-  #  print("Sleeping 30 seconds...")
-   # time.sleep(30)
+    #   time.sleep(30)
+    #  print("Sleeping 30 seconds...")
+    # time.sleep(30)
+
+
+def new_solve(cracked, tweet_id):
+    try:
+        # read a file to a variable
+        solved_file = open('/tmp/hashes/tweetID_solved.txt', 'r')
+
+    except IOError as e:
+        print(e)
+
+    for solve in solved_file:
+        solve_clean = str(solve).rstrip()
+        if tweet_id in solve_clean:
+            # print("Already Solved!", cracked, solve_clean, tweet_id)
+            solve = 1
+            break
+        else:
+            solve = 0
+
+    solved_file.close()
+
+    return solve
 
 
 def should_we_tweet_live(cracked, tweet_id):
@@ -84,13 +106,11 @@ def should_we_tweet_live(cracked, tweet_id):
     else:
         cracked_split = cracked.split()
         to_tweet = "@CipherEveryword " + cracked_split[0]
-        try:
-            print("Winner  ", cracked)
-            # need to slow down the requests - 1 Tweet every 3 minutes on load
-            go_slower()
-            api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
-        except tweepy.TweepError as e:
-            print(e)
+        print("Winner  ", cracked, tweet_id)
+
+        # need to slow down the requests - 1 Tweet every 3 minutes on load
+        # go_slower()
+        # api.update_status(status=to_tweet, in_reply_to_status_id=tweet_id)
 
 
 def crack_stuff(crack_hash, f_format):
@@ -124,7 +144,7 @@ def crack_stuff(crack_hash, f_format):
         print(e)
 
     for i in f_format:
-        print("Cracking : ", i)
+        # print("Cracking : ", i)
 
         john_command = "/home/atekippe/Desktop/CTF/utils/john-jumbo/john --format=" + i + " " + file_path + " --wordlist=" + dict_path + " --pot=/tmp/hashes/test"
         # john-jumbo --format=raw-md5 md --wordlist=/home/atekippe/Desktop/rockyou.txt --pot=test
@@ -211,63 +231,80 @@ new_tweets = api.user_timeline(screen_name = "CipherEveryword", count=500)
 for tweet in new_tweets:
 
     tweetID = tweet.id_str
-    #print(tweet.text)
-    """
+
+    already_solved = new_solve(tweet.text, tweetID)
+
+    if already_solved is 1:
+        print("Already Solved!  ", tweet.text, tweetID)
+    else:
+        print("Not Solved")
+
+
+        #print(tweet.text)
+        """
     
-    print(tweet.id_str)
-    print(tweet.created_at) 
-    """
-    regex = re.search(filter_binary, tweet.text)
+        print(tweet.id_str)
+        print(tweet.created_at) 
+        """
+        regex = re.search(filter_binary, tweet.text)
 
-    #Check Binary first
-    if regex is None:
-        # Wasn't Binary, Lets check for md2 / md4 / md5
-        regex = re.search(filter_md4, tweet.text)
+        #Check Binary first
         if regex is None:
-            # Wasn't md4 lets check RIP160 / SHA 1
-            regex = re.search(filter_ripMD160, tweet.text)
+            # Wasn't Binary, Lets check for md2 / md4 / md5
+            regex = re.search(filter_md4, tweet.text)
             if regex is None:
-                # Wasn't RIP160 lets try SHA224
-                regex = re.search(filter_sha224, tweet.text)
+                # Wasn't md4 lets check RIP160 / SHA 1
+                regex = re.search(filter_ripMD160, tweet.text)
                 if regex is None:
-                    # Wasn't SHA224 lets try SHA256
-                    regex = re.search(filter_sha256, tweet.text)
+                    # Wasn't RIP160 lets try SHA224
+                    regex = re.search(filter_sha224, tweet.text)
                     if regex is None:
-                        # Wasn't SHA256, Maybe SHA384?
-                        regex = re.search(filter_sha384, tweet.text)
+                        # Wasn't SHA224 lets try SHA256
+                        regex = re.search(filter_sha256, tweet.text)
                         if regex is None:
-                            # Wasn't SHA384, SHA512?
-                            regex = re.search(filter_sha512, tweet.text)
+                            # Wasn't SHA256, Maybe SHA384?
+                            regex = re.search(filter_sha384, tweet.text)
                             if regex is None:
-                                # Maybe base64?
-                                regex = re.search(filter_base64, tweet.text)
+                                # Wasn't SHA384, SHA512?
+                                regex = re.search(filter_sha512, tweet.text)
                                 if regex is None:
-                                    # print("No Match :", tweet.text)
-                                    regex = re.search(filter_caesar, tweet.text)
-
+                                    # Maybe base64?
+                                    regex = re.search(filter_base64, tweet.text)
                                     if regex is None:
                                         # print("No Match :", tweet.text)
-                                        unknown_write(tweet.text)
+                                        regex = re.search(filter_caesar, tweet.text)
+
+                                        if regex is None:
+                                            # print("No Match :", tweet.text)
+                                            unknown_write(tweet.text)
+                                        else:
+                                            # Try to break the Rot N
+                                            cracked = rot_break(tweet.text)
+                                            should_we_tweet_live(cracked, tweetID)
                                     else:
-                                        # Try to break the Rot N
-                                        cracked = rot_break(tweet.text)
+                                        # Try to decode the b64
+                                        cracked = base64_decode(tweet.text)
                                         should_we_tweet_live(cracked, tweetID)
                                 else:
-                                    # Try to decode the b64
-                                    cracked = base64_decode(tweet.text)
+                                    hash_format = ["Raw-SHA512"]
+
+                                    # Debugging info
+                                    if debug is 'true':
+                                        debug_info(tweet.text, hash_format)
+
+                                    cracked = crack_stuff(tweet.text, hash_format)
                                     should_we_tweet_live(cracked, tweetID)
                             else:
-                                hash_format = ["Raw-SHA512"]
+                                hash_format = ["Raw-SHA384"]
 
                                 # Debugging info
                                 if debug is 'true':
                                     debug_info(tweet.text, hash_format)
 
                                 cracked = crack_stuff(tweet.text, hash_format)
-                                print(tweet.id_str)
                                 should_we_tweet_live(cracked, tweetID)
                         else:
-                            hash_format = ["Raw-SHA384"]
+                            hash_format = ["Raw-SHA256"]
 
                             # Debugging info
                             if debug is 'true':
@@ -276,7 +313,7 @@ for tweet in new_tweets:
                             cracked = crack_stuff(tweet.text, hash_format)
                             should_we_tweet_live(cracked, tweetID)
                     else:
-                        hash_format = ["Raw-SHA256"]
+                        hash_format = ["Raw-SHA224"]
 
                         # Debugging info
                         if debug is 'true':
@@ -285,7 +322,7 @@ for tweet in new_tweets:
                         cracked = crack_stuff(tweet.text, hash_format)
                         should_we_tweet_live(cracked, tweetID)
                 else:
-                    hash_format = ["Raw-SHA224"]
+                    hash_format = ["ripemd-160", "Raw-SHA1"]  # , "Raw-SHA1-AxCrypt", "Raw-SHA1-Linkedin", "Raw-SHA1-ng", "has-160"]
 
                     # Debugging info
                     if debug is 'true':
@@ -294,7 +331,7 @@ for tweet in new_tweets:
                     cracked = crack_stuff(tweet.text, hash_format)
                     should_we_tweet_live(cracked, tweetID)
             else:
-                hash_format = ["ripemd-160", "Raw-SHA1"]  # , "Raw-SHA1-AxCrypt", "Raw-SHA1-Linkedin", "Raw-SHA1-ng", "has-160"]
+                hash_format = ["raw-md5", "raw-md4", "MD2", "ripemd-128", "hmac-md5"]  # , "HAVAL-128-4", "LM", "dynamic=md5($p)", "mdc2", "mscash", "NT", "Raw-MD5u", "Raw-SHA1-AxCrypt", "Snefru-128", "NT-old"]
 
                 # Debugging info
                 if debug is 'true':
@@ -303,18 +340,9 @@ for tweet in new_tweets:
                 cracked = crack_stuff(tweet.text, hash_format)
                 should_we_tweet_live(cracked, tweetID)
         else:
-            hash_format = ["raw-md5", "raw-md4", "MD2", "ripemd-128", "hmac-md5"]  # , "HAVAL-128-4", "LM", "dynamic=md5($p)", "mdc2", "mscash", "NT", "Raw-MD5u", "Raw-SHA1-AxCrypt", "Snefru-128", "NT-old"]
-
-            # Debugging info
-            if debug is 'true':
-                debug_info(tweet.text, hash_format)
-
-            cracked = crack_stuff(tweet.text, hash_format)
+            # Submit the decoded Binary
+            cracked = binary_decode(tweet.text)
             should_we_tweet_live(cracked, tweetID)
-    else:
-        # Submit the decoded Binary
-        cracked = binary_decode(tweet.text)
-        should_we_tweet_live(cracked, tweetID)
 
 
 
