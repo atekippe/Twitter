@@ -3,18 +3,6 @@ from keys import *
 import binascii
 
 
-def multi_byte_reverse_xor(xored_data, xor_key):
-    xor_bytes = binascii.unhexlify(xored_data)
-
-    # take xor bytes to a string
-    xor_str = xor_bytes.decode("utf-8")
-
-    # xor the data
-    clear_text = ''.join(chr(ord(c) ^ ord(k)) for c, k in zip(xor_str, cycle(xor_key)))
-    print(clear_text)
-    return clear_text
-
-
 # Login to Twitter
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
@@ -24,14 +12,40 @@ api = tweepy.API(auth)
 #api.update_status("TEST TWEET!")
 
 
+
 # Get Tweets for CipherEveryword
 new_tweets = api.user_timeline(screen_name = "CipherEveryword", count=200)
+#new_tweets = api.user_timeline(screen_name = screen_name,count=200,max_id=oldest)
 
-for tweet in new_tweets:
+# new_tweets = api.user_timeline(screen_name=screen_name, count=200)
 
-    print(tweet.text)
+alltweets = []
+# save most recent tweets
+alltweets.extend(new_tweets)
 
-key = "A"
-cipher = "QuYPqltSnw9qdxqY"
+# save the id of the oldest tweet less one
+oldest = alltweets[-1].id - 1
 
-print(multi_byte_reverse_xor(cipher, key))
+# keep grabbing tweets until there are no tweets left to grab
+while len(new_tweets) > 0:
+    print("getting tweets before %s" % (oldest))
+
+    # all subsiquent requests use the max_id param to prevent duplicates
+    new_tweets = api.user_timeline(screen_name="CipherEveryword", count=200, max_id=oldest)
+
+    # save most recent tweets
+    alltweets.extend(new_tweets)
+
+    # update the id of the oldest tweet less one
+    oldest = alltweets[-1].id - 1
+
+    print
+    "...%s tweets downloaded so far" % (len(alltweets))
+
+i = 0
+for tweet in alltweets:
+
+    print(tweet.text, tweet.id)
+    i += 1
+
+print(i)

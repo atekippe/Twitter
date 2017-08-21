@@ -321,7 +321,35 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 # Get Tweets for CipherEveryword
-new_tweets = api.user_timeline(screen_name = "CipherEveryword", count=500)
+new_tweets = api.user_timeline(screen_name = "CipherEveryword", count=200)
+
+"""
+### GET ALL THE TWEETS....
+alltweets = []
+# save most recent tweets
+alltweets.extend(new_tweets)
+
+# save the id of the oldest tweet less one
+oldest = alltweets[-1].id - 1
+
+# keep grabbing tweets until there are no tweets left to grab
+while len(new_tweets) > 0:
+    print("getting tweets before %s" % (oldest))
+
+    # all subsiquent requests use the max_id param to prevent duplicates
+    new_tweets = api.user_timeline(screen_name="CipherEveryword", count=200, max_id=oldest)
+
+    # save most recent tweets
+    alltweets.extend(new_tweets)
+
+    # update the id of the oldest tweet less one
+    oldest = alltweets[-1].id - 1
+
+    print
+    "...%s tweets downloaded so far" % (len(alltweets))
+### If you want alltweets change new_tweets to alltweets in the loop below
+
+"""
 
 # Parse the tweets
 for tweet in new_tweets:
