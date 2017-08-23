@@ -54,7 +54,7 @@ def rot_break(data):
         decoded = rot_decode(data, i)
 
         is_english = d.check(decoded)
-        print(decoded, is_english)
+        # print(decoded, is_english)
         if is_english is True:
             print(decoded, is_english)
             return decoded
@@ -334,8 +334,8 @@ class StdOutListener(tweepy.StreamListener):
         tweet_text = decoded['text']
         tweet_id = str(decoded['id'])
 
-        print("Tweet Text : ", tweet_text, type(tweet_text))
-        print("Tweet ID:    ", tweet_id, type(tweet_id))
+        print("Tweet Text : ", tweet_text)
+        print("Tweet ID   : ", tweet_id)
         print('')
 
         # Filter my replies from data processing.  All of the replies contain @CipherEveryword
@@ -386,7 +386,6 @@ def parse_tweets():
         if already_solved is 1:
             pass
         else:
-            print("Not Solved")
             process_data(tweet_text, tweet_id)
 
 
