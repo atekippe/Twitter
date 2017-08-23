@@ -58,7 +58,7 @@ def rot_break(data):
         if is_english is True:
             print(decoded, is_english)
             return decoded
-            break
+
         else:
             i += 1
     unknown_write(data)
@@ -73,21 +73,21 @@ def new_solve(cracked, tweet_id):
         # read a file to a variable
         solved_file = open(tweet_id_path, 'r')
 
+        for solved in solved_file:
+            solve_clean = str(solved).rstrip()
+            if tweet_id in solve_clean:
+                print("Already Solved!", cracked, solve_clean, tweet_id)
+                solve = 1
+                break
+            else:
+                solve = 0
+
+        solved_file.close()
+
+        return solve
+
     except IOError as e:
         print(e)
-
-    for solve in solved_file:
-        solve_clean = str(solve).rstrip()
-        if tweet_id in solve_clean:
-            print("Already Solved!", cracked, solve_clean, tweet_id)
-            solve = 1
-            break
-        else:
-            solve = 0
-
-    solved_file.close()
-
-    return solve
 
 
 def update_solve_file(tweet_id):
@@ -232,7 +232,7 @@ def base64_decode(b64_data):
     return "Not Cracked"
 
 
-def process_data(tweet_data, tweetID):
+def process_data(tweet_data, tweet_id):
     # Regex to match data posted
     filter_binary = re.compile('0b[0-1]{8}')
     filter_base64 = re.compile('^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$')
@@ -244,9 +244,9 @@ def process_data(tweet_data, tweetID):
     filter_sha512 = re.compile('^[0-9a-fA-F]{128}$')
     filter_caesar = re.compile('^[a-zA-z\']*$')  # the \ is necessary to escape the '
 
-    already_solved = new_solve(tweet_data, tweetID)
+    already_solved = new_solve(tweet_data, tweet_id)
     if already_solved is 1:
-        # print("Already Solved!  ", tweetData, tweetID)
+        # print("Already Solved!  ", tweetData, tweet_id)
         pass
     else:
         print("Not Solved")
@@ -285,45 +285,45 @@ def process_data(tweet_data, tweetID):
                                         else:
                                             # Try to break the Rot N
                                             cracked = rot_break(tweet_data)
-                                            should_we_tweet_live(cracked, tweetID)
+                                            should_we_tweet_live(cracked, tweet_id)
                                     else:
                                         # Try to decode the b64
                                         cracked = base64_decode(tweet_data)
-                                        should_we_tweet_live(cracked, tweetID)
+                                        should_we_tweet_live(cracked, tweet_id)
                                 else:
                                     hash_format = ["Raw-SHA512"]
 
                                     cracked = crack_stuff(tweet_data, hash_format)
-                                    should_we_tweet_live(cracked, tweetID)
+                                    should_we_tweet_live(cracked, tweet_id)
                             else:
                                 hash_format = ["Raw-SHA384"]
 
                                 cracked = crack_stuff(tweet_data, hash_format)
-                                should_we_tweet_live(cracked, tweetID)
+                                should_we_tweet_live(cracked, tweet_id)
                         else:
                             hash_format = ["Raw-SHA256"]
 
                             cracked = crack_stuff(tweet_data, hash_format)
-                            should_we_tweet_live(cracked, tweetID)
+                            should_we_tweet_live(cracked, tweet_id)
                     else:
                         hash_format = ["Raw-SHA224"]
 
                         cracked = crack_stuff(tweet_data, hash_format)
-                        should_we_tweet_live(cracked, tweetID)
+                        should_we_tweet_live(cracked, tweet_id)
                 else:
                     hash_format = ["ripemd-160", "Raw-SHA1"]  # , "Raw-SHA1-AxCrypt", "Raw-SHA1-Linkedin", "Raw-SHA1-ng", "has-160"]
 
                     cracked = crack_stuff(tweet_data, hash_format)
-                    should_we_tweet_live(cracked, tweetID)
+                    should_we_tweet_live(cracked, tweet_id)
             else:
                 hash_format = ["raw-md5", "raw-md4", "MD2", "ripemd-128", "hmac-md5"]  # , "HAVAL-128-4", "LM", "dynamic=md5($p)", "mdc2", "mscash", "NT", "Raw-MD5u", "Raw-SHA1-AxCrypt", "Snefru-128", "NT-old"]
 
                 cracked = crack_stuff(tweet_data, hash_format)
-                should_we_tweet_live(cracked, tweetID)
+                should_we_tweet_live(cracked, tweet_id)
         else:
             # Submit the decoded Binary
             cracked = binary_decode(tweet_data)
-            should_we_tweet_live(cracked, tweetID)
+            should_we_tweet_live(cracked, tweet_id)
 
 
 # This is the listener, responsible for receiving data
@@ -374,7 +374,7 @@ def parse_tweets():
     api = tweepy.API(auth)
 
     # Get Tweets for CipherEveryword
-    new_tweets = api.user_timeline(screen_name="CipherEveryword", count=200)
+    new_tweets = api.user_timeline(screen_name="CipherEveryword", count=20)
 
     # loop the tweets and process if not solved
     for tweet in new_tweets:
