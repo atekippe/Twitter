@@ -46,6 +46,7 @@ def rot_break(data):
     global project_path
     # get an english Dictionary and add a custom word list
     dict_path = project_path + "words.txt"
+
     d = enchant.DictWithPWL("en_US", dict_path)
     # roll the letters and look for an english word
     i = 0
@@ -56,9 +57,8 @@ def rot_break(data):
         is_english = d.check(decoded)
         # print(decoded, is_english)
         if is_english is True:
-            print(decoded, is_english)
+            # print(decoded, is_english)
             return decoded
-
         else:
             i += 1
     unknown_write(data)
@@ -108,7 +108,7 @@ def update_solve_file(tweet_id):
 
 def should_we_tweet_live(cracked, tweet_id):
     if "Not Cracked" in cracked:
-        print("Loser ", cracked)
+        print("The data was not recovered: ", cracked, tweet_id)
     else:
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
@@ -156,7 +156,7 @@ def crack_stuff(crack_hash, f_format):
 
     # several hash formats were passed to the function.  We are going to loop them until we solve
     for i in f_format:
-        print("Cracking : ", i)
+        # print("Cracking : ", i)
 
         # command to run John
         john_command = "/home/atekippe/tools/john-jumbo/john --format=" + i + " " + file_path + " --wordlist=" + dict_path + " --pot=solve.pot"
@@ -211,18 +211,15 @@ def base64_decode(b64_data):
 
             # if the result is alpha numeric we solved it
             if re.search(filter_alphanumeric, str_decoded) is not None:
-                print("Base64 is: ", str_decoded)
+                #print("Base64 is: ", str_decoded)
                 return str_decoded
-            
+
         except Exception:
             try:
-                base64_decoded_path = project_path + 'b64_notdecoded.txt'
-                # We didn't recover so write the b64 to the b64_notdecoded file
-                b64_file = open(base64_decoded_path, 'a')
-                b64_file.write(b64_data)
-                b64_file.write("\n")
-                b64_file.close()
-                print("Updated b64_notdecoded.txt")
+                # The b64 decoded but we did not solve.  There are a certain number of cases where a ROT-N ciphered word could have matched our b64 regex.  We need to try to solve the rot-n
+                str_decoded = rot_break(b64_data)
+                return str_decoded
+
             except IOError as e:
                 print(e)
             pass
@@ -249,7 +246,7 @@ def process_data(tweet_data, tweet_id):
         # print("Already Solved!  ", tweetData, tweet_id)
         pass
     else:
-        print("Not Solved")
+        # print("Not Solved")
 
         regex = re.search(filter_binary, tweet_data)
 
@@ -374,7 +371,7 @@ def parse_tweets():
     api = tweepy.API(auth)
 
     # Get Tweets for CipherEveryword
-    new_tweets = api.user_timeline(screen_name="CipherEveryword", count=20)
+    new_tweets = api.user_timeline(screen_name="CipherEveryword", count=200)
 
     # loop the tweets and process if not solved
     for tweet in new_tweets:

@@ -22,11 +22,14 @@ bxmsgqxqee - PLAGUELESS
 "epxivrexsv'w"
 """
 
-data = "bxmsgqxqee"
+data = "oxqdwpay"
+#data = "bxmsgqxqee"
+
 
 i = 0
-pwl = enchant.request_pwl_dict("words.txt")
-d = enchant.DictWithPWL("en_US", "words.txt")
+#pwl = enchant.request_pwl_dict("words.txt")
+d = enchant.DictWithPWL("en_US", "/home/atekippe/PycharmProjects/Twitter1/words.txt")
+
 
 
 
@@ -34,9 +37,11 @@ while i < 26:
 
     decoded = rot_decode(data, i)
     is_english = d.check(decoded)
-    print(decoded)
+    print(decoded, is_english)
+    print(decoded, type(decoded))
     if is_english is True:
         print(decoded, is_english)
         break
     else:
+        print(decoded, is_english)
         i += 1
