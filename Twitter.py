@@ -239,7 +239,7 @@ def process_data(tweet_data, tweet_id):
     filter_sha256 = re.compile('^[0-9a-fA-F]{64}$')
     filter_sha384 = re.compile('^[0-9a-fA-F]{96}$')
     filter_sha512 = re.compile('^[0-9a-fA-F]{128}$')
-    filter_caesar = re.compile('^[a-zA-z\']*$')  # the \ is necessary to escape the '
+    filter_caesar = re.compile('^[a-zA-z\'-]*$')  # the \ is necessary to escape the '
 
     already_solved = new_solve(tweet_data, tweet_id)
     if already_solved is 1:
